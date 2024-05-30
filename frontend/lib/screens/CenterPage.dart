@@ -3,7 +3,7 @@ import 'package:apdc_individual/screens/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'ListUserPage.dart';
+import 'ListHistoricConsultPage.dart';
 import 'RegisterExame.dart';
 import 'RegistarAppointment.dart';
 
@@ -34,7 +34,7 @@ class CenterPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildButton(context, 'List User', ListUserPage()),
+              _buildButton(context, 'Histórico de Consultas', ListUserPage()),
               SizedBox(height: 16),
               _buildButton(context, 'Register Exam', RegisterExame()),
               SizedBox(height: 16),
