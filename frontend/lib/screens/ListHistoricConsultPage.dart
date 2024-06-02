@@ -1,19 +1,6 @@
-import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
-class LogoutData {
-  final String cookie;
-
-  LogoutData(this.cookie);
-
-  Map<String, dynamic> toJson() {
-    return {
-      'cookie': cookie,
-    };
-  }
-}
 
 class ListUserPage extends StatefulWidget {
   @override
@@ -21,26 +8,26 @@ class ListUserPage extends StatefulWidget {
 }
 
 class _ListUserPageState extends State<ListUserPage> {
-  List<Map<String, dynamic>> _userList = [];
+  List<Map<String, dynamic>> _consultationList = [];
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchUserList();
+    _generateConsultationList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('List Users'),
+        title: Text('Histórico de Consultas'),
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : _userList.isNotEmpty
+          : _consultationList.isNotEmpty
               ? ListView.builder(
-                  itemCount: _userList.length,
+                  itemCount: _consultationList.length,
                   itemBuilder: (context, index) {
                     return Card(
                       child: ListTile(
@@ -48,119 +35,70 @@ class _ListUserPageState extends State<ListUserPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildText(
-                                'Username', _userList[index]['username']),
-                            _buildText('Role', _userList[index]['role']),
-                            _buildText('Email', _userList[index]['email']),
-                            _buildText('Name', _userList[index]['name']),
-                            _buildText('Number', _userList[index]['number']),
-                            _buildText('Profile', _userList[index]['profile']),
-                            _buildText('Address', _userList[index]['address']),
+                                'Doutor', _consultationList[index]['doctor']),
+                            _buildText('Especialidade',
+                                _consultationList[index]['specialty']),
                             _buildText(
-                                'Occupation', _userList[index]['occupation']),
-                            _buildText(
-                                'Workplace', _userList[index]['workplace']),
-                            _buildText(
-                                'Post Code', _userList[index]['postCode']),
-                            _buildText('NIF', _userList[index]['nif']),
-                            _buildText(
-                                'Image Path', _userList[index]['imagePath']),
+                                'Data', _consultationList[index]['date']),
                           ],
                         ),
                       ),
                     );
                   },
                 )
-              : Center(child: Text('No users found')),
+              : Center(child: Text('Nenhuma consulta encontrada')),
     );
   }
 
-  Widget _buildText(String label, String? value) {
-    if (value != null && value.isNotEmpty) {
-      return Text('$label: $value');
-    } else {
-      return SizedBox(); // Return an empty widget if the value is null or empty
-    }
+  Widget _buildText(String label, String value) {
+    return Text('$label: $value');
   }
 
-  Future<void> _fetchUserList() async {
+  void _generateConsultationList() {
     setState(() {
       _isLoading = true;
     });
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? tokenValue = prefs.getString('cookie');
 
-    String cookie = '';
-    if (tokenValue != null && tokenValue.isNotEmpty) {
-      try {
-        Map<String, dynamic> cookieMap = jsonDecode(tokenValue);
-        if (cookieMap.containsKey('value')) {
-          cookie = cookieMap['value'] as String;
-        } else {
-          print('Chave "value" não encontrada no mapa do cookie.');
-        }
-      } catch (e) {
-        print('Erro ao decodificar o JSON do cookie: $e');
-      }
-    } else {
-      print('TokenValue é nulo ou vazio.');
-    }
+    List<String> doctors = [
+      'Dr. Silva',
+      'Dr. Santos',
+      'Dr. Pereira',
+      'Dr. Costa',
+      'Dr. Lima'
+    ];
+    List<String> specialties = [
+      'Cardiologia',
+      'Dermatologia',
+      'Pediatria',
+      'Neurologia',
+      'Ortopedia'
+    ];
+    List<Map<String, dynamic>> consultations = [];
 
-    final response = await http.post(
-      Uri.parse('https://aula-123.oa.r.appspot.com/rest/list'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode({'cookie': cookie}),
-    );
+    final random = Random();
 
-    if (response.statusCode == 200) {
-      if (response.body != null && response.body.isNotEmpty) {
-        List<dynamic> responseBody = json.decode(response.body);
-        List<Map<String, dynamic>> users = [];
-        responseBody.forEach((item) {
-          Map<String, dynamic> properties = item['properties'];
-          String username = properties['username']?['value'] ?? '';
-          String role = properties['role']?['value'] ?? '';
-          String state = properties['state']?['value'] ?? '';
-          String email = properties['email']?['value'] ?? '';
-          String name = properties['name']?['value'] ?? '';
-          String number = properties['number']?['value'] ?? '';
-          String profile = properties['profile']?['value'] ?? '';
-          String address = properties['address']?['value'] ?? '';
-          String occupation = properties['occupation']?['value'] ?? '';
-          String workplace = properties['workplace']?['value'] ?? '';
-          String postCode = properties['postCode']?['value'] ?? '';
-          String nif = properties['nif']?['value'] ?? '';
-          String imagePath = properties['imagePath']?['value'] ?? '';
-          users.add({
-            'username': username,
-            'role': role,
-            'state': state,
-            'email': email,
-            'name': name,
-            'number': number,
-            'profile': profile,
-            'address': address,
-            'occupation': occupation,
-            'workplace': workplace,
-            'postCode': postCode,
-            'nif': nif,
-            'imagePath': imagePath,
-          });
-        });
-        setState(() {
-          _userList = users;
-          print('User list: $_userList');
-          _isLoading = false;
-        });
-      } else {
-        print('Response body is null or empty.');
-      }
-    } else {
-      setState(() {
-        _isLoading = false;
+    for (int i = 0; i < 10; i++) {
+      String doctor = doctors[random.nextInt(doctors.length)];
+      String specialty = specialties[random.nextInt(specialties.length)];
+      String date = _randomPastDate();
+
+      consultations.add({
+        'doctor': doctor,
+        'specialty': specialty,
+        'date': date,
       });
-      print('HTTP request failed with status code ${response.statusCode}');
     }
+
+    setState(() {
+      _consultationList = consultations;
+      _isLoading = false;
+    });
+  }
+
+  String _randomPastDate() {
+    final random = Random();
+    int daysAgo = random.nextInt(365);
+    DateTime date = DateTime.now().subtract(Duration(days: daysAgo));
+    return '${date.day}/${date.month}/${date.year}';
   }
 }
