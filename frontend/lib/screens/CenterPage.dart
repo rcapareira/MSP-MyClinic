@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'ListHistoricConsultPage.dart';
 import 'RegisterExame.dart';
 import 'RegistarAppointment.dart';
+import 'StockManagementPage.dart'; // Import the new Stock Management page
 
 import 'dart:convert';
 
@@ -42,6 +43,8 @@ class CenterPage extends StatelessWidget {
                   context, 'Register Appointment', RegistarAppointment()),
               SizedBox(height: 16),
               _buildButton(context, 'Check In', CheckInPage()),
+              SizedBox(height: 16),
+              _buildButton(context, 'Stock Management', StockManagementPage()),
               SizedBox(height: 16),
               _buildButton(context, 'Logout', Container(), logout: true),
             ],
